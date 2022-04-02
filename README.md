@@ -26,20 +26,27 @@
 ![image](https://user-images.githubusercontent.com/62739618/161400039-f5341612-27a3-4941-99cf-cab52eb35f40.png)
 ![image](https://user-images.githubusercontent.com/62739618/161400062-fc28ba2c-21cc-4851-8ab9-7d914787b52c.png)
 
-
+---
 ## How to Download the Data set?
 
-Sample file to download (0.50GB) [https://drive.google.com/file/d/1FIcHqGCfM-8-SU6pbW6DOOCJNJgKAx-k/view?usp=sharing].
+Sample file to download (124MB) [download](https://drive.google.com/file/d/1KMFL8Js24rbUTA9lkp81dyFdUAfljfGH/view?usp=sharing). (Use this data set in hosted link)
 
-large file to download (0.50GB) [https://drive.google.com/file/d/1FIcHqGCfM-8-SU6pbW6DOOCJNJgKAx-k/view?usp=sharing].
+
+large file to download (0.50GB) [download](https://drive.google.com/file/d/1FIcHqGCfM-8-SU6pbW6DOOCJNJgKAx-k/view?usp=sharing). (Use this data set in localhost )
 
 ## How to Run?
+```bash
+pip install -r requirements.txt
+```
+
 ```bash
 streamlit run app.py
 ```
 Run this command in the project directory terminal.
 
+## Website Link
 
+Check out the dashboard [link](https://share.streamlit.io/mathanamathav/zerodown/main/app.py)😎
 
 
 
