@@ -210,13 +210,17 @@ def main():
 
         st.markdown("""---""")
 
-  
+        try:
 
-        decomposition = seasonal_decompose(data[option_column], model='additive', period=52)
-        fig = plot_seasonal_decompose(decomposition,option_city,option_column,dates=data['period_begin'])
-        st.plotly_chart(fig, use_container_width=True)
+            decomposition = seasonal_decompose(data[option_column], model='additive', period=52)
+            fig = plot_seasonal_decompose(decomposition,option_city,option_column,dates=data['period_begin'])
+            st.plotly_chart(fig, use_container_width=True)
 
-        st.markdown("""---""")
+            st.markdown("""---""")
+        
+        except:
+            pass
+        
         #bar plot
         st.subheader("Area Chart")
         st.area_chart(data[['active_listings','inventory','total_homes_sold','total_active_listings']])
