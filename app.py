@@ -7,14 +7,14 @@ from datetime import datetime,date, timedelta
 from plotly.subplots import make_subplots
 from statsmodels.tsa.seasonal import DecomposeResult, seasonal_decompose
 
-url='https://drive.google.com/file/d/1FIcHqGCfM-8-SU6pbW6DOOCJNJgKAx-k/view?usp=sharing'
-file_id=url.split('/')[-2]
-dwn_url='https://drive.google.com/uc?id=' + file_id
 st.set_page_config(layout="wide")
 
 
-
 def plot_seasonal_decompose(result:DecomposeResult,city,column,dates:pd.Series=None):
+    """
+        This function is used to plot the Time series plots to find the infer trends, 
+        seasonality, cyclic nature for the different metrics 
+    """
     title = " Seasonal Decomposition "+city+" of the "+column+" attribute"
     x_values = dates if dates is not None else np.arange(len(result.observed))
     return (
@@ -51,21 +51,24 @@ def plot_seasonal_decompose(result:DecomposeResult,city,column,dates:pd.Series=N
 st.title("US Housing Market Dashboard")
 
 
-@st.cache
-def load_data():
-    uploaded_file = st.file_uploader("Choose a TSV file")
-    if uploaded_file is not None:
-        # df = pd.read_csv(uploaded_file,names=header_list)
-        data = pd.read_csv(uploaded_file,sep = '\t')
-        # data = pd.read_csv(dwn_url,sep='\t')
-
-        return data
+# @st.cache
+# def load_data():
+#     """
+#         we are loading the data set with function and streamlit cache is used at the start
+#     """
+#     uploaded_file = st.file_uploader("Choose a TSV file")
+#     if uploaded_file is not None:
+#         # df = pd.read_csv(uploaded_file,names=header_list)
+#         data = pd.read_csv(uploaded_file,sep = '\t')
+#         # data = pd.read_csv(dwn_url,sep='\t')
+#         return data
 
 
 @st.cache
 def geomap_chart(df,column_attr):
     """
-        function to plot map based on started
+        function to plot geo map plot given the different metrics,
+        we are loading the data set with function and streamlit cache is used at the start
     """
     fig = px.choropleth(df,
                     locations='state', 
@@ -80,20 +83,36 @@ def geomap_chart(df,column_attr):
     return fig
 
 
-    # def line_chart(df,column_attr="total_homes_sold"):
-    #     """
-    #         function to plot line based on started
-    #     """
-    #     return fig
+# def line_chart(df,column_attr="total_homes_sold"):
+#     """
+#         function to plot line based on started
+#     """
+#     return fig
 
+# @st.cache(suppress_st_warning=True)
 def main():
+    """
+        Main function all the charts is called and used.
+    """
 
+    st.markdown("""---""")
     uploaded_file = st.file_uploader("Choose a TSV file")
     if uploaded_file is not None:
-        # df = pd.read_csv(uploaded_file,names=header_list)
         df = pd.read_csv(uploaded_file,sep = '\t')
 
-    
+        st.markdown("""---""")
+
+        with st.container():
+            # """
+            #     Data Frame view
+            # """
+            df_f = df.iloc[:25, 1:]
+            st.subheader("DataFrame view to see the Data set")
+            st.dataframe(df_f)
+
+        st.markdown("""---""")
+
+
         column = list(df.columns)
         column = column[1:]
         column.remove('region_id')
@@ -104,6 +123,7 @@ def main():
         column.remove('duration')
         column.remove('state')
 
+        st.subheader("MAP Chart")
 
         opt_column = 'active_listings'
         opt_column = st.selectbox(
@@ -123,9 +143,13 @@ def main():
         k = k[:-1]
         st.plotly_chart(geomap_chart(k,opt_column), use_container_width=True)
 
+        st.markdown("""---""")
 
-
-        st.header("Line Chart")
+        # """
+        #     line chart
+        # """
+        st.subheader("Line Chart")
+        
         states = df['state'].unique()
 
         option_state = st.selectbox(
@@ -157,8 +181,11 @@ def main():
             'What is your column attribute you want to visualize?',
             column,key = 123)
 
-        data_2 = data[option_column].rolling(12).mean()
-        data_2.fillna(0)
+        data_12 = data[option_column].rolling(12).mean()
+        data_12.fillna(0)
+        data_4 = data[option_column].rolling(4).mean()
+        data_4.fillna(0)
+
         column.remove('average_adjustment_average_homes_delisted')
         column.remove('average_adjustment_average_new_listings')
         column.remove('average_adjustment_average_homes_sold')
@@ -167,27 +194,36 @@ def main():
 
         fig = go.Figure()
         fig.add_scatter(x=data['period_begin'],y=data[option_column],mode="lines",name='1 week avg')
+        fig.add_scatter(x=data['period_begin'],y=data_4,mode="lines",name='4 week avg')             
+        fig.add_scatter(x=data['period_begin'],y=data_12,mode="lines",name='12 week avg')
 
-                            
-        fig.add_scatter(x=data['period_begin'],y=data_2,mode="lines",name='12 week avg')
-        # fig.update_layout(
-        #     showlegend=False
-        # ) 
+      
         fig.update_layout(title="Plot for the city "+option_city+" from 2018 to 2019",
                         xaxis_title='Staring Date 2018 - 2022',
                         yaxis_title=option_column
         )
 
-        st.plotly_chart(fig, use_container_width= True)
+        
+        
 
+        st.plotly_chart(fig,use_container_width=True)
 
+        st.markdown("""---""")
 
-                
+  
 
         decomposition = seasonal_decompose(data[option_column], model='additive', period=52)
         fig = plot_seasonal_decompose(decomposition,option_city,option_column,dates=data['period_begin'])
         st.plotly_chart(fig, use_container_width=True)
 
+        st.markdown("""---""")
+        #bar plot
+        st.subheader("Area Chart")
+        st.area_chart(data[['active_listings','inventory','total_homes_sold','total_active_listings']])
+
+        st.markdown("""---""")
+
+        st.subheader("Bar Chart Most popular(Top 15)")
 
         data_bar = df[df["period_begin"] == str(start_time)]
         data_bar.sort_values([option_column])
@@ -195,6 +231,10 @@ def main():
 
         fig = px.bar(data_bar, x="region_name", y=option_column,color="region_name")  
         st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("""---""")
+        st.subheader("Heat Map between the metrics ~ any relation")
+
 
         # df_cor = df[df['period_begin'] == str(start_time)]
         data_bar = data_bar[column]
@@ -208,9 +248,10 @@ def main():
             )
         st.plotly_chart(fig, use_container_width=True)
 
+        st.markdown("""---""")
 
 
-        st.header("Pie Chart")
+        st.subheader("Pie Chart (county vs metro)")
         tmp = df[['region_type_id', 'total_homes_sold']]
         fig = px.pie(tmp,names = 'region_type_id',color = 'region_type_id',color_discrete_sequence=px.colors.sequential.RdBu, title = 'Number of Counties and Metros')
         fig.update_traces(textposition='inside', textinfo='percent+label')
@@ -222,6 +263,23 @@ def main():
             st.write("""The chart above shows some numbers I picked for you.
                 I rolled actual dice for these, so they're *guaranteed* to
                 be random.""")
+            st.write("""So in this dashboard there are many metrics and variables that can
+            be changed to your wish and it plots for you for the given value. 
+            """)
+            st.write("""The time series analysis for the trends, seasonality, cyclic nature is being 
+            provied.
+            """)
+            st.write("""There is a pattern in the data set from the month april - july every year for some metrics.
+            """)
+
+        from PIL import Image
+        image = Image.open('pic.png')
+
+        st.image(image, caption="Analysis is the art of creation through destruction.")
+            
+        
+        st.markdown("""---""")
+
 
 if __name__ == '__main__':
     main()
