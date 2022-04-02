@@ -4,12 +4,15 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime,date, timedelta
-
-
-st.set_page_config(layout="wide")
-
 from plotly.subplots import make_subplots
 from statsmodels.tsa.seasonal import DecomposeResult, seasonal_decompose
+
+url='https://drive.google.com/file/d/1FIcHqGCfM-8-SU6pbW6DOOCJNJgKAx-k/view?usp=sharing'
+file_id=url.split('/')[-2]
+dwn_url='https://drive.google.com/uc?id=' + file_id
+st.set_page_config(layout="wide")
+
+
 
 def plot_seasonal_decompose(result:DecomposeResult,city,column,dates:pd.Series=None):
     title = " Seasonal Decomposition "+city+" of the "+column+" attribute"
@@ -49,12 +52,14 @@ st.title("US Housing Market Dashboard")
 
 
 @st.cache
-def load_data():
+def load_data(dwn_url):
     data = pd.read_csv('data_week_1.tsv',sep = '\t')
+    # data = pd.read_csv(dwn_url,sep='\t')
+
     return data
 
-df = load_data()
-
+df = load_data(dwn_url)
+st.write(df.head())
 
 @st.cache
 def geomap_chart(df,column_attr):
@@ -105,7 +110,7 @@ start_time = st.slider(
 st.write("Start time:", start_time)
 
 filter_df = df[df["period_begin"] == str(start_time)]
-k = filter_df[['state',opt_column]].groupby(['state'],as_index=False).sum()
+k = filter_df[['state',opt_column]].groupby(['state'],as_index=False).mean()
 k = k[:-1]
 st.plotly_chart(geomap_chart(k,opt_column), use_container_width=True)
 
@@ -145,6 +150,11 @@ option_column = st.selectbox(
 
 data_2 = data[option_column].rolling(12).mean()
 data_2.fillna(0)
+column.remove('average_adjustment_average_homes_delisted')
+column.remove('average_adjustment_average_new_listings')
+column.remove('average_adjustment_average_homes_sold')
+column.remove('average_adjustment_pending_sales')
+
 
 fig = go.Figure()
 fig.add_scatter(x=data['period_begin'],y=data[option_column],mode="lines",name='1 week avg')
@@ -170,7 +180,24 @@ fig = plot_seasonal_decompose(decomposition,option_city,option_column,dates=data
 st.plotly_chart(fig, use_container_width=True)
 
 
+data_bar = df[df["period_begin"] == str(start_time)]
+data_bar.sort_values([option_column])
+data_bar = data_bar[:15]
 
+fig = px.bar(data_bar, x="region_name", y=option_column,color="region_name")  
+st.plotly_chart(fig, use_container_width=True)
+
+# df_cor = df[df['period_begin'] == str(start_time)]
+data_bar = data_bar[column]
+
+data_bar = data_bar.fillna(0)
+
+data_cor = data_bar.corr()
+fig = px.imshow(data_cor)
+fig.update_layout(
+    width = 1200, height = 1200,
+    )
+st.plotly_chart(fig, use_container_width=True)
 
 
 
