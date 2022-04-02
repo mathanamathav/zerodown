@@ -5,15 +5,15 @@
 
 ## Problem Statement:
 
-- [x] (Analyze metrics at state & county level provide your insights in an hierarchical fashion.)
-- [x] (Analyze & infer trends, seasonality, cyclic nature of metrics provided.)
+- [x] Analyze metrics at state & county level provide your insights in an hierarchical fashion.
+- [x] Analyze & infer trends, seasonality, cyclic nature of metrics provided.
 
 ## Objectives:
 
-- [x] (Extract provided data and if needed, transfer into any database of your choice.)
-- [x] (Provide insightful inferences which would be of interest for buyers/sellers.)
-- [x] (Build an interactive dashboard to visualize your findings/provided metrics using any language or tool, preferably as a web page.)
-- [x] (Host your dashboard on any platform of your choice.)
+- [x] Extract provided data and if needed, transfer into any database of your choice.
+- [x] Provide insightful inferences which would be of interest for buyers/sellers.
+- [x] Build an interactive dashboard to visualize your findings/provided metrics using any language or tool, preferably as a web page.
+- [x] Host your dashboard on any platform of your choice.
 
 
 ## Preview Images From the dashboard:
