@@ -53,12 +53,13 @@ st.title("US Housing Market Dashboard")
 
 @st.cache
 def load_data(dwn_url):
-    data = pd.read_csv('data_week_1.tsv',sep = '\t')
+    data = pd.read_csv(dwn_url,sep = '\t')
     # data = pd.read_csv(dwn_url,sep='\t')
 
     return data
 
-df = load_data(dwn_url)
+uploaded_file = st.file_uploader("Choose a CSV file")
+df = load_data(uploaded_file)
 st.write(df.head())
 
 @st.cache
